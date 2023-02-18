@@ -27,3 +27,7 @@ Activate venv and install dependencies (you are in project directory)
   poetry shell
   poetry install
 ```
+
+## Steps
+
+1. Rename html file name. Delete task 1 from the folder and html file
