@@ -25,5 +25,6 @@ class BookingScrapper:
     def __scrape_hotel_details(self):
         pass
 
+
 if __name__ == "__main__":
     booking_scrapper = BookingScrapper(base_link=BASE_LINK)
