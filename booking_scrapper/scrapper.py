@@ -2,6 +2,7 @@ from bs4 import BeautifulSoup
 import requests
 from typing import Dict
 from requests.exceptions import HTTPError
+from booking_scrapper.model import HotelExtended
 
 BASE_LINK = "http://localhost:8000/data/Kempinski%20Hotel%20Bristol%20Berlin%2C%20Germany%20-%20Booking.com.html"
 
@@ -22,8 +23,9 @@ class BookingScrapper:
         except HTTPError as http_err:
             print(f'HTTP error occurred: {http_err}')
 
-    def __scrape_hotel_details(self):
-        pass
+    def scrape_hotel_details(self):
+        if self.content:
+            content_lxml = BeautifulSoup(self.content)
 
 
 if __name__ == "__main__":
