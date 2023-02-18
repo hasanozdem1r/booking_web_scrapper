@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "python-template-repository"
+name = "booking scrapper"
 version = "0.1.0"
 description = ""
 authors = ["hasanozdem1r <hasanozdemir1@trakya.edu.tr>"]

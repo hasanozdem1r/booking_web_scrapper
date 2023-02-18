@@ -27,6 +27,10 @@ Activate venv and install dependencies (you are in project directory)
   poetry shell
   poetry install
 ```
+Set PYTHONPATH
+```bash
+  export PYTHONPATH="$PWD"
+```
 
 ## Environment Preparation
 

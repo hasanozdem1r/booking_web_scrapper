@@ -1,13 +1,10 @@
 import json
 from pydantic import BaseModel
 
-# JSON encoder to serialize Pydantic models
+# JSON encoder for pydantic model
 class PydanticJSONEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, BaseModel):
             return obj.dict()
-        return super().default(obj)
+        return json.JSONEncoder.default(self, obj)
 
-# JSON serializer that uses the PydanticJSONEncoder
-def to_json(obj):
-    return json.dumps(obj, cls=PydanticJSONEncoder, indent=4)
