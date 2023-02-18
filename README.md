@@ -28,6 +28,11 @@ Activate venv and install dependencies (you are in project directory)
   poetry install
 ```
 
-## Steps
+## Environment Preparation
 
-1. Rename html file name. Delete task 1 from the folder and html file
+1. Rename html file name. Rename it Kempinski Hotel Bristol Berlin, Germany - Booking.com.html
+2. Prepare localhost to run HTML file on local server
+```bash
+  python -m http.server
+```
+3. Go to link [localhost](http://localhost:8000)
