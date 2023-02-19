@@ -6,7 +6,7 @@ from pydantic import BaseModel, validator, schema_json_of
 from typing import List
 
 
-#TODO: validator tbd
+# TODO: validator tbd
 # base class for HotelMinified and HotelExtended
 class Hotel(BaseModel):
     hotel_name: str
@@ -34,7 +34,4 @@ class HotelExtended(Hotel):
 
 if __name__ == "__main__":
     # to make sure model class as expected
-    print(
-        schema_json_of(HotelExtended,
-                       title='The Hotel Extended Schema',
-                       indent=2))
+    print(schema_json_of(HotelExtended, title="The Hotel Extended Schema", indent=2))
