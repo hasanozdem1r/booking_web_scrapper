@@ -23,6 +23,7 @@ class HotelRoom(BaseModel):
 
 class HotelMinified(Hotel):
     booking_link: str  # if person want to go link of hotel
+    number_of_visitors: int  # how many people looking to hotel
 
 
 class HotelExtended(Hotel):
