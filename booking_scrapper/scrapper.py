@@ -6,8 +6,7 @@ from lxml import etree
 import re
 from booking_scrapper.model import HotelMinified
 from booking_scrapper.exception import CssSelectorError, XpathSelectorError
-
-BASE_LINK = "http://localhost:8000/data/Kempinski%20Hotel%20Bristol%20Berlin%2C%20Germany%20-%20Booking.com.html"
+from booking_scrapper.globals import BASE_LINK
 
 
 class ScraperHelper:
@@ -134,4 +133,4 @@ class BookingScraper(ScraperHelper):
 
 if __name__ == "__main__":
     booking_scrapper = BookingScraper(base_link=BASE_LINK)
-    booking_scrapper.get_alternative_hotels()
+    print(booking_scrapper.get_alternative_hotels())
