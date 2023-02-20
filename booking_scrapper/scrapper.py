@@ -1,13 +1,41 @@
 from bs4 import BeautifulSoup
 import requests
-from typing import Dict
+from typing import Dict, List
 from requests.exceptions import HTTPError
 from lxml import etree
+import re
+from booking_scrapper.model import HotelMinified
+from booking_scrapper.exception import CssSelectorError, XpathSelectorError
 
 BASE_LINK = "http://localhost:8000/data/Kempinski%20Hotel%20Bristol%20Berlin%2C%20Germany%20-%20Booking.com.html"
 
 
-class BookingScraper:
+class ScraperHelper:
+    @staticmethod
+    def extract_number_from_text(text: str) -> int:
+        numbers = re.findall(r"\d+", text)
+        if len(numbers) == 1:
+            # number is found
+            return int(numbers[0])
+
+    @staticmethod
+    def get_element_text(dom: str, element_xpath: str) -> str:
+        """
+        Get text by given XPATH
+        :param element_xpath: <str> xpath for element
+        :raise IndexError: if item return NoneType
+        :return: <str> text from element
+        """
+        try:
+            element = dom.xpath(element_xpath)[0]
+            return str(element.text).strip()
+        except IndexError as error:
+            raise XpathSelectorError(
+                message=f"Following XPATH:{element_xpath} is not existed in current stream"
+            ) from error
+
+
+class BookingScraper(ScraperHelper):
     def __init__(self, base_link: str) -> None:
         try:
             # use fake User-Agent to deal 403 Forbidden
@@ -27,31 +55,68 @@ class BookingScraper:
             print(f"HTTP error occurred: {http_err}")
             raise HTTPError from http_err
 
-    
-    def __get_element_text(self, element_xpath: str) -> str:
-        """
-        Get text by given XPATH
-        :param element_xpath: <str> xpath for element
-        :raise IndexError: if item return NoneType
-        :return: <str> text from element
-        """
-        try:
-            element = self.dom.xpath(element_xpath)[0]
-            return str(element.text).strip()
-        except IndexError:
-            return ""
-
     def get_hotel_name(self) -> str:
-        return self.__get_element_text('//*[@id="hp_hotel_name"]')
+        return self.get_element_text(
+            dom=self.dom, element_xpath='//*[@id="hp_hotel_name"]'
+        )
 
     def get_hotel_address(self) -> str:
-        return self.__get_element_text('//*[@id="hp_address_subtitle"]')
+        return self.get_element_text(
+            dom=self.dom, element_xpath='//*[@id="hp_address_subtitle"]'
+        )
 
-    def get_alternative_hotels(self) -> None:
+    def get_alternative_hotels(self) -> List[HotelMinified]:
+        alternatives: List[HotelMinified] = []
         alternative_hotels = self.html_soup.find("div", {"id": "althotels"}).find_all(
             "td", {"class": "althotelsCell tracked"}
         )
-        print(alternative_hotels)
+        # alternative hotels section get metadata for each hotel
+        if alternative_hotels:
+            for hotel in alternative_hotels:
+                hotel_name = str(
+                    hotel.find("a", {"class": "althotel_link"}).text
+                ).strip()
+                description = str(
+                    hotel.find("span", {"class": "hp_compset_description"}).text
+                ).strip()
+                visitor_details = str(
+                    hotel.find(
+                        "p",
+                        {"class": "altHotels_most_recent_booking urgency_message_red"},
+                    ).text
+                ).strip()
+                # extract number from the scraped info. For e.g There are 12345 people looking at this hotel.
+                number_of_visitors = self.extract_number_from_text(text=visitor_details)
+                number_of_reviewers = str(
+                    hotel.find("strong", {"class": "count"}).text
+                ).strip()
+                review_points = float(
+                    str(
+                        hotel.find(
+                            "span", {"class": "average js--hp-scorecard-scoreval"}
+                        ).text
+                    ).strip()
+                )
+                booking_link = str(
+                    hotel.find(
+                        "a",
+                        {"class": "b-button"},
+                    ).get("href")
+                ).strip()
+                hotel = HotelMinified(
+                    hotel_name=hotel_name,
+                    description=description,
+                    number_of_visitors=number_of_visitors,
+                    number_of_reviewers=number_of_reviewers,
+                    review_points=review_points,
+                    booking_link=booking_link,
+                )
+                alternatives.append(hotel)
+            return alternatives
+        else:
+            raise CssSelectorError(
+                message="CSS selectors is not existed in current stream"
+            )
 
     def get_hotel_description(self) -> str:
         description_wrapper = self.html_soup.find(
@@ -62,11 +127,11 @@ class BookingScraper:
         paragraphs = description_wrapper.find_all("p")
         # TODO: Prettify paragraphs
         description = "".join(
-            [f"{parapgraph.text.strip()}\n" for parapgraph in paragraphs]
+            [f"{paragraph.text.strip()}\n" for paragraph in paragraphs]
         )
         return description
 
 
 if __name__ == "__main__":
     booking_scrapper = BookingScraper(base_link=BASE_LINK)
-    print(booking_scrapper.get_hotel_description())
+    booking_scrapper.get_alternative_hotels()
