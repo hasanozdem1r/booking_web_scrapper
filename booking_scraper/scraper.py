@@ -4,14 +4,19 @@ from typing import Dict, List
 from requests.exceptions import HTTPError
 from booking_scraper.model import HotelMinified
 from booking_scraper.exception import (
-    CssSelectorError,
+    InvalidCssSelectorError,
     XpathSelectorError,
     InvalidRoomCapacityError,
 )
-from booking_scraper.model import HotelRoom, HotelMinified, HotelExtended, RoomCapacity
+from booking_scraper.model import (
+    HotelRoom,
+    HotelMinified,
+    HotelExtended,
+    RoomCapacity,
+    ReviewPoints,
+)
 from booking_scraper.globals import BASE_LINK
 import re
-from lxml import etree
 
 
 class ScraperHelper:
@@ -25,7 +30,6 @@ class ScraperHelper:
         """
         numbers = re.findall(r"\d+", text)
         if len(numbers) == 1:
-            # number is found
             return int(numbers[0])
         else:
             raise ValueError(f"Given text:{text} does not have any number")
@@ -73,34 +77,67 @@ class BookingScraper(ScraperHelper):
             response.raise_for_status()
             content = response.content
             self.html_soup = BeautifulSoup(content, "html.parser")
-            self.dom = etree.HTML(str(self.html_soup))
+            self.html_body = self.html_soup.find("body")
         except HTTPError as http_err:
             # TODO: tbd logging
             print(f"HTTP error occurred: {http_err}")
             raise HTTPError from http_err
 
     def get_hotel_name(self) -> str:
-        return str(self.html_soup.find("span", {"id": "hp_hotel_name"}).text).strip()
+        """
+        Get hotel name from stream/html
+        :raises InvalidCssSelectorError:
+        :return: <str> hotel name
+        """
+        hotel_name = str(
+            self.html_body.find("span", {"id": "hp_hotel_name"}).text
+        ).strip()
+        if hotel_name:
+            return hotel_name
+        else:
+            raise InvalidCssSelectorError()
 
     def get_address(self) -> str:
-        return str(
-            self.html_soup.find("span", {"id": "hp_address_subtitle"}).text
+        """
+        Get hotel address from stream/html
+        :raises InvalidCssSelectorError:
+        :return: <str> hotel address
+        """
+        address = str(
+            self.html_body.find("span", {"id": "hp_address_subtitle"}).text
         ).strip()
+        if address:
+            return address
+        else:
+            raise InvalidCssSelectorError()
 
     def get_classification(self):
-        return str(
-            self.html_soup.find(
+        """
+        Get classification from stream/html
+        :raises InvalidCssSelectorError:
+        :return: <str> classification
+        """
+        classification = str(
+            self.html_body.find(
                 "i", {"class": "vp_hotel_badge over_photo badge_couple jq_tooltip"}
-            ).get("title")
+            )
+            .find("span", {"class": "invisible_spoken"})
+            .text
         ).strip()
+        if classification:
+            return classification
+        else:
+            raise InvalidCssSelectorError()
 
-    # TODO: fix business logic
-    def get_review_points(self) -> float:
+    def get_review_points(self) -> ReviewPoints:
         """
         Crucial information is numerator but it's also important to know what is top point.
         For e.g 9.1 point can be good if top is 10 it's bad rating if top is 100
-        :return:
+        Scrape numerator & denominator (the terms of the fraction) and return as str so data user can have useful information
+        :raises InvalidCssSelectorError:
+        :return: <ReviewPoints> x/y for e.g 8.5/10.0
         """
+        # avarage point hotel received
         numerator = float(
             str(
                 self.html_soup.find(
@@ -108,11 +145,14 @@ class BookingScraper(ScraperHelper):
                 ).text
             ).strip()
         )
+        # max point can hotel receive
         denominator = float(
             str(self.html_soup.find("span", {"class": "best"}).text).strip()
         )
-        # return {"rating":numerator,"top-point":denominator}
-        return numerator
+        if numerator and denominator:
+            return ReviewPoints(numerator=numerator, denominator=denominator)
+        else:
+            raise InvalidCssSelectorError()
 
     def get_number_of_reviews(self) -> int:
         return int(str(self.html_soup.find("strong", {"class": "count"}).text).strip())
@@ -123,7 +163,7 @@ class BookingScraper(ScraperHelper):
             "div", {"class": "hotel_description_wrapper_exp"}
         )
         if not description_wrapper:
-            raise CssSelectorError()
+            raise InvalidCssSelectorError()
         paragraphs = description_wrapper.find_all("p")
         description = "".join(
             [f"{paragraph.text.strip()}\n" for paragraph in paragraphs]
@@ -175,13 +215,7 @@ class BookingScraper(ScraperHelper):
                 number_of_reviews = str(
                     hotel.find("strong", {"class": "count"}).text
                 ).strip()
-                review_points = float(
-                    str(
-                        hotel.find(
-                            "span", {"class": "average js--hp-scorecard-scoreval"}
-                        ).text
-                    ).strip()
-                )
+                review_points = self.get_review_points()
                 booking_link = str(
                     hotel.find(
                         "a",
@@ -199,7 +233,7 @@ class BookingScraper(ScraperHelper):
                 alternatives.append(hotel)
             return alternatives
         else:
-            raise CssSelectorError(
+            raise InvalidCssSelectorError(
                 message="CSS selectors is not existed in current stream"
             )
 
@@ -217,4 +251,5 @@ if __name__ == "__main__":
         room_categories=bs.get_room_categories(),
         alternative_hotels=bs.get_alternative_hotels(),
     )
-    print(hotel_extended.room_categories)
+    print("*" * 25)
+    print(hotel_extended.alternative_hotels[0])
