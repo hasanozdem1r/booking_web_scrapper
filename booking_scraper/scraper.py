@@ -140,14 +140,14 @@ class BookingScraper(ScraperHelper):
         # avarage point hotel received
         numerator = float(
             str(
-                self.html_soup.find(
+                self.html_body.find(
                     "span", {"class": "average js--hp-scorecard-scoreval"}
                 ).text
             ).strip()
         )
         # max point can hotel receive
         denominator = float(
-            str(self.html_soup.find("span", {"class": "best"}).text).strip()
+            str(self.html_body.find("span", {"class": "best"}).text).strip()
         )
         if numerator and denominator:
             return ReviewPoints(numerator=numerator, denominator=denominator)
@@ -155,88 +155,114 @@ class BookingScraper(ScraperHelper):
             raise InvalidCssSelectorError()
 
     def get_number_of_reviews(self) -> int:
-        return int(str(self.html_soup.find("strong", {"class": "count"}).text).strip())
+        """
+        Get number of reviews for hotel from stream/html
+        :raises InvalidCssSelectorError:
+        :return: <int> number of reviews
+        """
+        number_of_reviews = int(
+            str(self.html_body.find("strong", {"class": "count"}).text).strip()
+        )
+        if number_of_reviews:
+            return number_of_reviews
+        else:
+            raise InvalidCssSelectorError()
 
-    # TODO: prettify paragraphs
     def get_description(self) -> str:
-        description_wrapper = self.html_soup.find(
+        """
+        Get hotel description from stream/html
+        :raises InvalidCssSelectorError:
+        :return: <str> hotel description
+        """
+        description_wrapper = self.html_body.find(
             "div", {"class": "hotel_description_wrapper_exp"}
         )
-        if not description_wrapper:
+        if description_wrapper:
+            paragraphs = description_wrapper.find_all("p")
+            description = "".join(
+                [f"{paragraph.text.strip()}\n" for paragraph in paragraphs]
+            )
+            return description
+        else:
             raise InvalidCssSelectorError()
-        paragraphs = description_wrapper.find_all("p")
-        description = "".join(
-            [f"{paragraph.text.strip()}\n" for paragraph in paragraphs]
-        )
-        return description
 
     def get_room_categories(self) -> List[HotelRoom]:
-        room_categories: List[HotelRoom] = []
+        """
+        Get hotel room categories from stream/html
+        :raises InvalidCssSelectorError:
+        :return: <List[HotelRoom]> list of hotel rooms
+        """
         categories = (
-            self.html_soup.find("table", {"id": "maxotel_rooms"})
+            self.html_body.find("table", {"id": "maxotel_rooms"})
             .find("tbody")
             .find_all("tr")
         )
-        # categories section to get each category metadata
-        for category in categories:
-            room_capacity = category.find("td", {"class": "occ_no_dates"}).find_all("i")
-            room_capacity = self.get_room_capacity(capacity=room_capacity)
-            room_type = str(category.find("td", {"class": "ftd"}).text).strip()
-            room_categories.append(
-                HotelRoom(
-                    room_capacity=room_capacity,
-                    room_type=room_type,
+        if categories:
+            room_categories: List[HotelRoom] = []
+            # categories section to get each category metadata
+            for category in categories:
+                room_capacity = category.find("td", {"class": "occ_no_dates"}).find_all("i")
+                room_capacity = self.get_room_capacity(capacity=room_capacity)
+                room_type = str(category.find("td", {"class": "ftd"}).text).strip()
+                room_categories.append(
+                    HotelRoom(
+                        room_capacity=room_capacity,
+                        room_type=room_type,
+                    )
                 )
-            )
-        return room_categories
-
+            return room_categories
+        else:
+            raise InvalidCssSelectorError()
+        
     def get_alternative_hotels(self) -> List[HotelMinified]:
-        alternatives: List[HotelMinified] = []
         alternative_hotels = self.html_soup.find("div", {"id": "althotels"}).find_all(
             "td", {"class": "althotelsCell tracked"}
         )
-        # alternative hotels section to get each hotel metadata
         if alternative_hotels:
-            for hotel in alternative_hotels:
-                hotel_name = str(
-                    hotel.find("a", {"class": "althotel_link"}).text
-                ).strip()
-                description = str(
-                    hotel.find("span", {"class": "hp_compset_description"}).text
-                ).strip()
-                visitor_details = str(
-                    hotel.find(
-                        "p",
-                        {"class": "altHotels_most_recent_booking urgency_message_red"},
-                    ).text
-                ).strip()
-                # extract number from the scraped info. For e.g There are 12345 people looking at this hotel.
-                number_of_visitors = self.extract_number_from_text(text=visitor_details)
-                number_of_reviews = str(
-                    hotel.find("strong", {"class": "count"}).text
-                ).strip()
-                review_points = self.get_review_points()
-                booking_link = str(
-                    hotel.find(
-                        "a",
-                        {"class": "b-button"},
-                    ).get("href")
-                ).strip()
-                hotel = HotelMinified(
-                    hotel_name=hotel_name,
-                    description=description,
-                    number_of_visitors=number_of_visitors,
-                    number_of_reviews=number_of_reviews,
-                    review_points=review_points,
-                    booking_link=booking_link,
+            alternatives: List[HotelMinified] = []
+            # alternative hotels section to get each hotel metadata
+            if alternative_hotels:
+                for hotel in alternative_hotels:
+                    hotel_name = str(
+                        hotel.find("a", {"class": "althotel_link"}).text
+                    ).strip()
+                    description = str(
+                        hotel.find("span", {"class": "hp_compset_description"}).text
+                    ).strip()
+                    visitor_details = str(
+                        hotel.find(
+                            "p",
+                            {"class": "altHotels_most_recent_booking urgency_message_red"},
+                        ).text
+                    ).strip()
+                    # extract number from the scraped info. For e.g There are 12345 people looking at this hotel.
+                    number_of_visitors = self.extract_number_from_text(text=visitor_details)
+                    number_of_reviews = str(
+                        hotel.find("strong", {"class": "count"}).text
+                    ).strip()
+                    review_points = self.get_review_points()
+                    booking_link = str(
+                        hotel.find(
+                            "a",
+                            {"class": "b-button"},
+                        ).get("href")
+                    ).strip()
+                    hotel = HotelMinified(
+                        hotel_name=hotel_name,
+                        description=description,
+                        number_of_visitors=number_of_visitors,
+                        number_of_reviews=number_of_reviews,
+                        review_points=review_points,
+                        booking_link=booking_link,
+                    )
+                    alternatives.append(hotel)
+                return alternatives
+            else:
+                raise InvalidCssSelectorError(
+                    message="CSS selectors is not existed in current stream"
                 )
-                alternatives.append(hotel)
-            return alternatives
         else:
-            raise InvalidCssSelectorError(
-                message="CSS selectors is not existed in current stream"
-            )
-
+            raise InvalidCssSelectorError()
 
 if __name__ == "__main__":
     bs = BookingScraper(base_link=BASE_LINK)
@@ -251,5 +277,4 @@ if __name__ == "__main__":
         room_categories=bs.get_room_categories(),
         alternative_hotels=bs.get_alternative_hotels(),
     )
-    print("*" * 25)
-    print(hotel_extended.alternative_hotels[0])
+    print(hotel_extended.alternative_hotels)
