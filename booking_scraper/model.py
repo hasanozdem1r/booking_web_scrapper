@@ -10,11 +10,11 @@ from typing import List
 class Hotel(BaseModel):
     hotel_name: str
     description: str
-    number_of_reviewers: int
+    number_of_reviews: int
     review_points: float
 
-    @validator("number_of_reviewers")
-    def number_of_reviewers_must_be_positive(cls, value):
+    @validator("number_of_reviews")
+    def number_of_reviews_must_be_positive(cls, value):
         if value < 0:
             raise ValueError("Reviewers cannot be less than 0")
         return value

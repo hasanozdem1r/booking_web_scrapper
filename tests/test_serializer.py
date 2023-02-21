@@ -11,7 +11,7 @@ import json
 hotel_minified = HotelMinified(
     hotel_name="Hotel 1",
     description="Hotel Description",
-    number_of_reviewers=10,
+    number_of_reviews=10,
     number_of_visitors=10,
     review_points=4.5,
     booking_link="https://hotel.com",
@@ -20,7 +20,7 @@ hotel_minified = HotelMinified(
 hotel_extended = HotelExtended(
     hotel_name="Hotel 2",
     description="Hotel Description",
-    number_of_reviewers=20,
+    number_of_reviews=20,
     review_points=4.0,
     address="Hotel Address",
     classification="4-star",
