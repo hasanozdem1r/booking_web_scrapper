@@ -3,15 +3,16 @@ Test usage of divider
 08-07-2022 Hasan Özdemir
 """
 import pytest
-from booking_scrapper.model import HotelExtended, HotelMinified, HotelRoom
-from booking_scrapper.serializer import PydanticJSONEncoder
-from booking_scrapper.model import HotelExtended, HotelMinified, HotelRoom
+from booking_scraper.model import HotelExtended, HotelMinified, HotelRoom
+from booking_scraper.serializer import PydanticJSONEncoder
+from booking_scraper.model import HotelExtended, HotelMinified, HotelRoom
 import json
 
 hotel_minified = HotelMinified(
     hotel_name="Hotel 1",
     description="Hotel Description",
     number_of_reviewers=10,
+    number_of_visitors=10,
     review_points=4.5,
     booking_link="https://hotel.com",
 )

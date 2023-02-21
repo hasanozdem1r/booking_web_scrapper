@@ -1,4 +1,4 @@
-from booking_scrapper.scrapper import ScraperHelper, XpathSelectorError
+from booking_scraper.scraper import ScraperHelper, XpathSelectorError
 import pytest
 
 

@@ -4,9 +4,9 @@ from typing import Dict, List
 from requests.exceptions import HTTPError
 from lxml import etree
 import re
-from booking_scrapper.model import HotelMinified
-from booking_scrapper.exception import CssSelectorError, XpathSelectorError
-from booking_scrapper.globals import BASE_LINK
+from booking_scraper.model import HotelMinified
+from booking_scraper.exception import CssSelectorError, XpathSelectorError
+from booking_scraper.globals import BASE_LINK
 
 
 class ScraperHelper:
