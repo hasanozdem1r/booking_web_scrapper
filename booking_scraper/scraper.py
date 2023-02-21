@@ -213,7 +213,7 @@ class BookingScraper(ScraperHelper):
             return room_categories
         else:
             raise InvalidCssSelectorError()
-        
+
     def get_alternative_hotels(self) -> List[HotelMinified]:
         alternative_hotels = self.html_soup.find("div", {"id": "althotels"}).find_all(
             "td", {"class": "althotelsCell tracked"}
@@ -232,11 +232,15 @@ class BookingScraper(ScraperHelper):
                     visitor_details = str(
                         hotel.find(
                             "p",
-                            {"class": "altHotels_most_recent_booking urgency_message_red"},
+                            {
+                                "class": "altHotels_most_recent_booking urgency_message_red"
+                            },
                         ).text
                     ).strip()
                     # extract number from the scraped info. For e.g There are 12345 people looking at this hotel.
-                    number_of_visitors = self.extract_number_from_text(text=visitor_details)
+                    number_of_visitors = self.extract_number_from_text(
+                        text=visitor_details
+                    )
                     number_of_reviews = str(
                         hotel.find("strong", {"class": "count"}).text
                     ).strip()
@@ -263,6 +267,7 @@ class BookingScraper(ScraperHelper):
                 )
         else:
             raise InvalidCssSelectorError()
+
 
 if __name__ == "__main__":
     bs = BookingScraper(base_link=BASE_LINK)

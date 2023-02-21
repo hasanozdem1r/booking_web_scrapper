@@ -8,14 +8,15 @@ from typing import List
 
 
 class ReviewPoints(BaseModel):
-    numerator: float # hotel avarage rating
-    denominator: float # max rating can hotel receive
+    numerator: float  # hotel avarage rating
+    denominator: float  # max rating can hotel receive
 
     @validator("numerator")
     def review_points_must_be_between_zero_ten(cls, value):
         if not 0.0 <= value <= 10.0:
             raise ModelValidationError("Hotel ratings must be between 0.0 and 10.0")
         return value
+
 
 # base class for HotelMinified and HotelExtended
 class Hotel(BaseModel):
@@ -31,7 +32,6 @@ class Hotel(BaseModel):
         return value
 
 
-
 class RoomCapacity(BaseModel):
     number_of_adult: int
     number_of_children: int
@@ -41,12 +41,13 @@ class RoomCapacity(BaseModel):
         if value < 0:
             raise ModelValidationError("Number of adult cannot be less than 0")
         return value
-    
+
     @validator("number_of_children")
     def number_of_children_must_be_positive(cls, value):
         if value < 0:
             raise ModelValidationError("Number of children cannot be less than 0")
         return value
+
 
 class HotelRoom(BaseModel):
     room_capacity: RoomCapacity

@@ -1,6 +1,13 @@
 import pytest
 from booking_scraper.exception import ModelValidationError
-from booking_scraper.model import Hotel, HotelRoom, HotelMinified, HotelExtended,ReviewPoints,RoomCapacity
+from booking_scraper.model import (
+    Hotel,
+    HotelRoom,
+    HotelMinified,
+    HotelExtended,
+    ReviewPoints,
+    RoomCapacity,
+)
 
 
 class TestHotel:
@@ -10,10 +17,7 @@ class TestHotel:
                 hotel_name="Example Hotel",
                 description="A nice hotel",
                 number_of_reviews=-5,
-                review_points=ReviewPoints(
-                    numerator=8.5,
-                    denominator=10.0
-                ),
+                review_points=ReviewPoints(numerator=8.5, denominator=10.0),
             )
 
     def test_review_points_must_be_between_zero_ten(self):
@@ -22,10 +26,7 @@ class TestHotel:
                 hotel_name="Example Hotel",
                 description="A nice hotel",
                 number_of_reviews=20,
-                review_points=ReviewPoints(
-                    numerator=-8.5,
-                    denominator=10.0
-                ),
+                review_points=ReviewPoints(numerator=-8.5, denominator=10.0),
             )
 
     def test_can_create_hotel_with_valid_data(self):
@@ -33,10 +34,7 @@ class TestHotel:
             hotel_name="Example Hotel",
             description="A nice hotel",
             number_of_reviews=20,
-            review_points=ReviewPoints(
-                    numerator=8.5,
-                    denominator=10.0
-                ),
+            review_points=ReviewPoints(numerator=8.5, denominator=10.0),
         )
         assert hotel.hotel_name == "Example Hotel"
         assert hotel.description == "A nice hotel"
@@ -47,11 +45,19 @@ class TestHotel:
 class TestHotelRoom:
     def test_room_capacity_must_be_positive(self):
         with pytest.raises(ModelValidationError):
-            HotelRoom(RoomCapacity(number_of_adult=-2, number_of_children=-1), room_type="Double")
+            HotelRoom(
+                RoomCapacity(number_of_adult=-2, number_of_children=-1),
+                room_type="Double",
+            )
 
     def test_can_create_hotel_room_with_valid_data(self):
-        room = HotelRoom(room_capacity=RoomCapacity(number_of_adult=2, number_of_children=1), room_type="Double")
-        assert room.room_capacity == RoomCapacity(number_of_adult=2, number_of_children=1)
+        room = HotelRoom(
+            room_capacity=RoomCapacity(number_of_adult=2, number_of_children=1),
+            room_type="Double",
+        )
+        assert room.room_capacity == RoomCapacity(
+            number_of_adult=2, number_of_children=1
+        )
         assert room.room_type == "Double"
 
 
@@ -62,10 +68,7 @@ class TestHotelMinified:
                 hotel_name="Example Hotel",
                 description="A nice hotel",
                 number_of_reviews=20,
-                review_points=ReviewPoints(
-                    numerator=8.5,
-                    denominator=10.0
-                ),
+                review_points=ReviewPoints(numerator=8.5, denominator=10.0),
                 booking_link="http://example.com",
                 number_of_visitors=-1,
             )
@@ -75,10 +78,7 @@ class TestHotelMinified:
             hotel_name="Example Hotel",
             description="A nice hotel",
             number_of_reviews=20,
-            review_points=ReviewPoints(
-                    numerator=8.5,
-                    denominator=10.0
-                ),
+            review_points=ReviewPoints(numerator=8.5, denominator=10.0),
             booking_link="http://example.com",
             number_of_visitors=5,
         )
@@ -92,16 +92,19 @@ class TestHotelMinified:
 
 class TestHotelExtended:
     def test_can_create_hotel_extended_with_valid_data(self):
-        room1 = HotelRoom(room_capacity=RoomCapacity(number_of_adult=2, number_of_children=1), room_type="Double")
-        room2 = HotelRoom(room_capacity=RoomCapacity(number_of_adult=2, number_of_children=1), room_type="Single")
+        room1 = HotelRoom(
+            room_capacity=RoomCapacity(number_of_adult=2, number_of_children=1),
+            room_type="Double",
+        )
+        room2 = HotelRoom(
+            room_capacity=RoomCapacity(number_of_adult=2, number_of_children=1),
+            room_type="Single",
+        )
         hotel_minified = HotelMinified(
             hotel_name="Example Hotel",
             description="A nice hotel",
             number_of_reviews=20,
-            review_points=ReviewPoints(
-                    numerator=8.5,
-                    denominator=10.0
-                ),
+            review_points=ReviewPoints(numerator=8.5, denominator=10.0),
             booking_link="http://example.com",
             number_of_visitors=5,
         )
@@ -109,10 +112,7 @@ class TestHotelExtended:
             hotel_name="Example Hotel",
             description="A nice hotel",
             number_of_reviews=20,
-            review_points=ReviewPoints(
-                    numerator=8.5,
-                    denominator=10.0
-                ),
+            review_points=ReviewPoints(numerator=8.5, denominator=10.0),
             address="123 Main St.",
             classification="4 stars",
             room_categories=[room1, room2],

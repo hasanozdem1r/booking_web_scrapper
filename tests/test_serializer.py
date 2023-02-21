@@ -3,7 +3,13 @@ Test usage of divider
 08-07-2022 Hasan Özdemir
 """
 import pytest
-from booking_scraper.model import HotelExtended, HotelMinified, HotelRoom, ReviewPoints, RoomCapacity
+from booking_scraper.model import (
+    HotelExtended,
+    HotelMinified,
+    HotelRoom,
+    ReviewPoints,
+    RoomCapacity,
+)
 from booking_scraper.serializer import PydanticJSONEncoder
 import json
 
@@ -24,9 +30,18 @@ hotel_extended = HotelExtended(
     address="Hotel Address",
     classification="4-star",
     room_categories=[
-        HotelRoom(room_capacity=RoomCapacity(number_of_adult=2, number_of_children=0), room_type="Double Room"),
-        HotelRoom(room_capacity=RoomCapacity(number_of_adult=3, number_of_children=1), room_type="Single Room"),
-        HotelRoom(room_capacity=RoomCapacity(number_of_adult=4, number_of_children=0), room_type="Double Room"),
+        HotelRoom(
+            room_capacity=RoomCapacity(number_of_adult=2, number_of_children=0),
+            room_type="Double Room",
+        ),
+        HotelRoom(
+            room_capacity=RoomCapacity(number_of_adult=3, number_of_children=1),
+            room_type="Single Room",
+        ),
+        HotelRoom(
+            room_capacity=RoomCapacity(number_of_adult=4, number_of_children=0),
+            room_type="Double Room",
+        ),
     ],
     alternative_hotels=[hotel_minified],
 )

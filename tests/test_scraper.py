@@ -16,24 +16,29 @@ def test_get_hotel_name(booking_scraper):
 
 
 def test_get_hotel_address(booking_scraper):
-    assert (
-        ""
-        != booking_scraper.get_address()
-    )
+    assert "" != booking_scraper.get_address()
+
 
 def test_get_classification(booking_scraper):
     assert booking_scraper.get_classification() != ""
 
+
 def test_get_review_points(booking_scraper):
-    rating=booking_scraper.get_review_points().numerator
-    max_rating=booking_scraper.get_review_points().denominator
+    rating = booking_scraper.get_review_points().numerator
+    max_rating = booking_scraper.get_review_points().denominator
     assert True == (0.0 <= rating <= max_rating)
+
 
 def test_get_room_capacity(booking_scraper):
     # Test room with only adult or adult & children
-    hotel_rooms=booking_scraper.get_room_categories()
+    hotel_rooms = booking_scraper.get_room_categories()
     for room in hotel_rooms:
-        assert True == (0 <= room.room_capacity.number_of_adult) == (0 <= room.room_capacity.number_of_children)
+        assert (
+            True
+            == (0 <= room.room_capacity.number_of_adult)
+            == (0 <= room.room_capacity.number_of_children)
+        )
+
 
 def test_get_alternative_hotels(booking_scraper):
     alternatives = booking_scraper.get_alternative_hotels()
