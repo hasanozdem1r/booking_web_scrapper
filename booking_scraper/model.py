@@ -3,7 +3,7 @@ Pydantic Classes for metadata of hotels, it allows you validate and easily seria
 @hasanozdem1r 02-18-2023
 """
 from pydantic import BaseModel, validator, schema_json_of, AnyHttpUrl
-from typing import List
+from typing import List, Dict
 
 
 # base class for HotelMinified and HotelExtended
@@ -27,13 +27,12 @@ class Hotel(BaseModel):
 
 
 class HotelRoom(BaseModel):
-    room_capacity: int  # named Max on booking.com
+    room_capacity: Dict  # named Max on booking.com
     room_type: str  # short description of room
-    price_link: AnyHttpUrl  # if person want to access prices of room
 
     @validator("room_capacity")
     def room_capacity_must_be_positive(cls, value):
-        if value < 0:
+        if value["adult"] < 0 or value["children"] < 0:
             raise ValueError("Room capacity cannot be less than 0")
         return value
 
@@ -52,7 +51,7 @@ class HotelMinified(Hotel):
 class HotelExtended(Hotel):
     address: str
     classification: str
-    room_categories: HotelRoom
+    room_categories: List[HotelRoom]
     alternative_hotels: List[HotelMinified]
 
 

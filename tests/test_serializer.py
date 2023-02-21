@@ -24,9 +24,11 @@ hotel_extended = HotelExtended(
     review_points=4.0,
     address="Hotel Address",
     classification="4-star",
-    room_categories=HotelRoom(
-        room_capacity=2, room_type="Double Room", price_link="https://hotel.com/room"
-    ),
+    room_categories=[
+        HotelRoom(room_capacity={"adult": 2, "children": 3}, room_type="Double Room"),
+        HotelRoom(room_capacity={"adult": 2, "children": 4}, room_type="Single Room"),
+        HotelRoom(room_capacity={"adult": 2, "children": 5}, room_type="Double Room"),
+    ],
     alternative_hotels=[hotel_minified],
 )
 

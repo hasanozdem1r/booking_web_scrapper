@@ -43,7 +43,7 @@ class ScraperHelper:
             number_of_adult = ScraperHelper.extract_number_from_text(
                 capacity[0].get("title")
             )
-            return {"number_of_adult": number_of_adult, "number_of_child": 0}
+            return {"adult": number_of_adult, "children": 0}
         elif len(capacity) == 2:
             number_of_adult = ScraperHelper.extract_number_from_text(
                 capacity[0].get("title")
@@ -52,8 +52,8 @@ class ScraperHelper:
                 capacity[1]["class"][1]
             )
             return {
-                "number_of_adult": number_of_adult,
-                "number_of_child": number_of_child,
+                "adult": number_of_adult,
+                "children": number_of_child,
             }
         else:
             raise IndexError("Index is out of range")
@@ -99,7 +99,7 @@ class BookingScraper(ScraperHelper):
         """
         Crucial information is numerator but it's also important to know what is top point.
         For e.g 9.1 point can be good if top is 10 it's bad rating if top is 100
-        :return: _description_
+        :return:
         """
         numerator = float(
             str(
@@ -130,25 +130,32 @@ class BookingScraper(ScraperHelper):
         )
         return description
 
-    def get_room_categories(self):
+    def get_room_categories(self) -> List[HotelRoom]:
+        room_categories: List[HotelRoom] = []
         categories = (
             self.html_soup.find("table", {"id": "maxotel_rooms"})
             .find("tbody")
             .find_all("tr")
         )
-
+        # categories section to get each category metadata
         for category in categories:
             room_capacity = category.find("td", {"class": "occ_no_dates"}).find_all("i")
+            room_capacity = self.get_number_of_people_from_text(capacity=room_capacity)
             room_type = str(category.find("td", {"class": "ftd"}).text).strip()
-            print(self.get_number_of_people_from_text(capacity=room_capacity))
-            # print(len(room_capacity))
+            room_categories.append(
+                HotelRoom(
+                    room_capacity=room_capacity,
+                    room_type=room_type,
+                )
+            )
+        return room_categories
 
     def get_alternative_hotels(self) -> List[HotelMinified]:
         alternatives: List[HotelMinified] = []
         alternative_hotels = self.html_soup.find("div", {"id": "althotels"}).find_all(
             "td", {"class": "althotelsCell tracked"}
         )
-        # alternative hotels section get metadata for each hotel
+        # alternative hotels section to get each hotel metadata
         if alternative_hotels:
             for hotel in alternative_hotels:
                 hotel_name = str(
@@ -199,8 +206,6 @@ class BookingScraper(ScraperHelper):
 
 if __name__ == "__main__":
     bs = BookingScraper(base_link=BASE_LINK)
-    bs.get_room_categories()
-
     # pass data / objects to HotelExtended class
     hotel_extended = HotelExtended(
         hotel_name=bs.get_hotel_name(),
@@ -209,11 +214,7 @@ if __name__ == "__main__":
         review_points=bs.get_review_points(),
         address=bs.get_address(),
         classification=bs.get_classification(),
-        room_categories=HotelRoom(
-            room_capacity=2,
-            room_type="Double Room",
-            price_link="https://hotel.com/room",
-        ),
+        room_categories=bs.get_room_categories(),
         alternative_hotels=bs.get_alternative_hotels(),
     )
-    # print(hotel_extended.classification)
+    print(hotel_extended.room_categories)
