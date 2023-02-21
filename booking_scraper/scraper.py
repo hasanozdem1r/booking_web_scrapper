@@ -2,12 +2,13 @@ from bs4 import BeautifulSoup
 import requests
 from typing import Dict, List
 from requests.exceptions import HTTPError
-from lxml import etree
 from booking_scraper.model import HotelMinified
 from booking_scraper.exception import CssSelectorError, XpathSelectorError
 from booking_scraper.model import HotelRoom, HotelMinified, HotelExtended
 from booking_scraper.globals import BASE_LINK
 import re
+from lxml import etree
+
 
 class ScraperHelper:
     @staticmethod
@@ -37,7 +38,6 @@ class ScraperHelper:
 
 
 class BookingScraper(ScraperHelper):
-
     def __init__(self, base_link: str) -> None:
         try:
             # use fake User-Agent to deal 403 Forbidden
@@ -60,8 +60,56 @@ class BookingScraper(ScraperHelper):
     def get_hotel_name(self) -> str:
         return str(self.html_soup.find("span", {"id": "hp_hotel_name"}).text).strip()
 
-    def get_hotel_address(self) -> str:
-        return str(self.html_soup.find("span", {"id": "hp_address_subtitle"}).text).strip()
+    def get_address(self) -> str:
+        return str(
+            self.html_soup.find("span", {"id": "hp_address_subtitle"}).text
+        ).strip()
+
+    def get_classification(self):
+        return str(
+            self.html_soup.find(
+                "i", {"class": "vp_hotel_badge over_photo badge_couple jq_tooltip"}
+            ).get("title")
+        ).strip()
+
+    # TODO: fix business logic
+    def get_review_points(self) -> float:
+        """
+        Crucial information is numerator but it's also important to know what is top point.
+        For e.g 9.1 point can be good if top is 10 it's bad rating if top is 100
+        :return: _description_
+        """
+        numerator = float(
+            str(
+                self.html_soup.find(
+                    "span", {"class": "average js--hp-scorecard-scoreval"}
+                ).text
+            ).strip()
+        )
+        denominator = float(
+            str(self.html_soup.find("span", {"class": "best"}).text).strip()
+        )
+        # return {"rating":numerator,"top-point":denominator}
+        return numerator
+
+    def get_number_of_reviews(self) -> int:
+        return int(str(self.html_soup.find("strong", {"class": "count"}).text).strip())
+
+    # TODO: prettify paragraphs
+    def get_description(self) -> str:
+        description_wrapper = self.html_soup.find(
+            "div", {"class": "hotel_description_wrapper_exp"}
+        )
+        if not description_wrapper:
+            raise CssSelectorError()
+        paragraphs = description_wrapper.find_all("p")
+        description = "".join(
+            [f"{paragraph.text.strip()}\n" for paragraph in paragraphs]
+        )
+        return description
+
+    def get_room_categories(self):
+        pass
 
     def get_alternative_hotels(self) -> List[HotelMinified]:
         alternatives: List[HotelMinified] = []
@@ -85,7 +133,7 @@ class BookingScraper(ScraperHelper):
                 ).strip()
                 # extract number from the scraped info. For e.g There are 12345 people looking at this hotel.
                 number_of_visitors = self.extract_number_from_text(text=visitor_details)
-                number_of_reviewers = str(
+                number_of_reviews = str(
                     hotel.find("strong", {"class": "count"}).text
                 ).strip()
                 review_points = float(
@@ -105,7 +153,7 @@ class BookingScraper(ScraperHelper):
                     hotel_name=hotel_name,
                     description=description,
                     number_of_visitors=number_of_visitors,
-                    number_of_reviewers=number_of_reviewers,
+                    number_of_reviews=number_of_reviews,
                     review_points=review_points,
                     booking_link=booking_link,
                 )
@@ -116,34 +164,23 @@ class BookingScraper(ScraperHelper):
                 message="CSS selectors is not existed in current stream"
             )
 
-    def get_hotel_description(self) -> str:
-        description_wrapper = self.html_soup.find(
-            "div", {"class": "hotel_description_wrapper_exp"}
-        )
-        if not description_wrapper:
-            return ""
-        paragraphs = description_wrapper.find_all("p")
-        # TODO: Prettify paragraphs
-        description = "".join(
-            [f"{paragraph.text.strip()}\n" for paragraph in paragraphs]
-        )
-        return description
-
 
 if __name__ == "__main__":
     bs = BookingScraper(base_link=BASE_LINK)
-    
+
     # pass data / objects to HotelExtended class
     hotel_extended = HotelExtended(
         hotel_name=bs.get_hotel_name(),
-        description=bs.get_hotel_description(),
-        number_of_reviewers=20,
-        review_points=4.0,
-        address=bs.get_hotel_address(),
-        classification="4-star",
+        description=bs.get_description(),
+        number_of_reviews=bs.get_number_of_reviews(),
+        review_points=bs.get_review_points(),
+        address=bs.get_address(),
+        classification=bs.get_classification(),
         room_categories=HotelRoom(
-            room_capacity=2, room_type="Double Room", price_link="https://hotel.com/room"
+            room_capacity=2,
+            room_type="Double Room",
+            price_link="https://hotel.com/room",
         ),
         alternative_hotels=bs.get_alternative_hotels(),
     )
-    print(hotel_extended.address)
+    print(hotel_extended.classification)
