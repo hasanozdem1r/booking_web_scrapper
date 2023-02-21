@@ -25,22 +25,6 @@ class ScraperHelper:
             raise ValueError(f"Given text:{text} does not have any number")
 
     @staticmethod
-    def get_text_by_xpath(dom: str, element_xpath: str) -> str:
-        """
-        Get text by given XPATH
-        :param element_xpath: <str> xpath for element
-        :raise IndexError: if item return NoneType
-        :return: <str> text from element
-        """
-        try:
-            element = dom.xpath(element_xpath)[0]
-            return str(element.text).strip()
-        except IndexError as error:
-            raise XpathSelectorError(
-                message=f"Following XPATH:{element_xpath} is not existed in current stream"
-            ) from error
-
-    @staticmethod
     def get_room_capacity(capacity: List[str]) -> RoomCapacity:
         """
         Parse results based on length of list
