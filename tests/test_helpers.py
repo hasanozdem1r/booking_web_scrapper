@@ -20,10 +20,12 @@ class TestScraperHelper:
         else:
             assert ScraperHelper.extract_number_from_text(input_text) == expected_output
 
-    @pytest.fixture(params=[
-        ("<html><body><p>hello world</p></body></html>", "//p"),
-        ("<html><body><h1>hello world</h1></body></html>", "//h2")
-    ])
+    @pytest.fixture(
+        params=[
+            ("<html><body><p>hello world</p></body></html>", "//p"),
+            ("<html><body><h1>hello world</h1></body></html>", "//h2"),
+        ]
+    )
     def dom_and_xpath(self, request):
         return request.param
 

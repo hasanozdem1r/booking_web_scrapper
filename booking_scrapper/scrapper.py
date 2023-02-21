@@ -16,9 +16,11 @@ class ScraperHelper:
         if len(numbers) == 1:
             # number is found
             return int(numbers[0])
+        else:
+            raise ValueError(f"Given text:{text} does not have any number")
 
     @staticmethod
-    def get_element_text(dom: str, element_xpath: str) -> str:
+    def get_text_by_xpath(dom: str, element_xpath: str) -> str:
         """
         Get text by given XPATH
         :param element_xpath: <str> xpath for element
@@ -55,12 +57,12 @@ class BookingScraper(ScraperHelper):
             raise HTTPError from http_err
 
     def get_hotel_name(self) -> str:
-        return self.get_element_text(
+        return self.get_text_by_xpath(
             dom=self.dom, element_xpath='//*[@id="hp_hotel_name"]'
         )
 
     def get_hotel_address(self) -> str:
-        return self.get_element_text(
+        return self.get_text_by_xpath(
             dom=self.dom, element_xpath='//*[@id="hp_address_subtitle"]'
         )
 
