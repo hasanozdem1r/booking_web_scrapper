@@ -3,11 +3,11 @@ import requests
 from typing import Dict, List
 from requests.exceptions import HTTPError
 from lxml import etree
-import re
 from booking_scraper.model import HotelMinified
 from booking_scraper.exception import CssSelectorError, XpathSelectorError
+from booking_scraper.model import HotelRoom, HotelMinified, HotelExtended
 from booking_scraper.globals import BASE_LINK
-
+import re
 
 class ScraperHelper:
     @staticmethod
@@ -37,6 +37,7 @@ class ScraperHelper:
 
 
 class BookingScraper(ScraperHelper):
+
     def __init__(self, base_link: str) -> None:
         try:
             # use fake User-Agent to deal 403 Forbidden
@@ -57,14 +58,10 @@ class BookingScraper(ScraperHelper):
             raise HTTPError from http_err
 
     def get_hotel_name(self) -> str:
-        return self.get_text_by_xpath(
-            dom=self.dom, element_xpath='//*[@id="hp_hotel_name"]'
-        )
+        return str(self.html_soup.find("span", {"id": "hp_hotel_name"}).text).strip()
 
     def get_hotel_address(self) -> str:
-        return self.get_text_by_xpath(
-            dom=self.dom, element_xpath='//*[@id="hp_address_subtitle"]'
-        )
+        return str(self.html_soup.find("span", {"id": "hp_address_subtitle"}).text).strip()
 
     def get_alternative_hotels(self) -> List[HotelMinified]:
         alternatives: List[HotelMinified] = []
@@ -134,5 +131,19 @@ class BookingScraper(ScraperHelper):
 
 
 if __name__ == "__main__":
-    booking_scrapper = BookingScraper(base_link=BASE_LINK)
-    print(booking_scrapper.get_alternative_hotels())
+    bs = BookingScraper(base_link=BASE_LINK)
+    
+    # pass data / objects to HotelExtended class
+    hotel_extended = HotelExtended(
+        hotel_name=bs.get_hotel_name(),
+        description=bs.get_hotel_description(),
+        number_of_reviewers=20,
+        review_points=4.0,
+        address=bs.get_hotel_address(),
+        classification="4-star",
+        room_categories=HotelRoom(
+            room_capacity=2, room_type="Double Room", price_link="https://hotel.com/room"
+        ),
+        alternative_hotels=bs.get_alternative_hotels(),
+    )
+    print(hotel_extended.address)
