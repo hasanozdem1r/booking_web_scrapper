@@ -20,7 +20,7 @@ def test_get_hotel_address(booking_scraper):
 
 
 def test_get_classification(booking_scraper):
-    assert booking_scraper.get_classification() != ""
+    assert True == (0 <= booking_scraper.get_classification() <= 5)
 
 
 def test_get_review_points(booking_scraper):

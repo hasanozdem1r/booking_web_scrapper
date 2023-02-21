@@ -111,21 +111,26 @@ class BookingScraper(ScraperHelper):
         else:
             raise InvalidCssSelectorError()
 
-    def get_classification(self):
+    def get_classification(self) -> int:
         """
         Get classification from stream/html
         :raises InvalidCssSelectorError:
         :return: <str> classification
         """
-        classification = str(
-            self.html_body.find(
-                "i", {"class": "vp_hotel_badge over_photo badge_couple jq_tooltip"}
-            )
-            .find("span", {"class": "invisible_spoken"})
-            .text
-        ).strip()
+        classification = self.html_body.select_one(".nowrap.hp__hotel_ratings span i")
         if classification:
-            return classification
+            # list of class names which includes number of star
+            class_names = classification.get("class")
+            for class_name in class_names:
+                try:
+                    number_of_stars = ScraperHelper.extract_number_from_text(
+                        text=class_name
+                    )
+                    break
+                except ValueError as err:
+                    pass
+            if number_of_stars:
+                return int(number_of_stars)
         else:
             raise InvalidCssSelectorError()
 
@@ -278,8 +283,8 @@ if __name__ == "__main__":
         number_of_reviews=bs.get_number_of_reviews(),
         review_points=bs.get_review_points(),
         address=bs.get_address(),
-        classification=bs.get_classification(),
+        classification=bs.get_classification(),  # re-check
         room_categories=bs.get_room_categories(),
         alternative_hotels=bs.get_alternative_hotels(),
     )
-    print(hotel_extended.alternative_hotels)
+    print(hotel_extended.classification)

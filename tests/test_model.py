@@ -114,7 +114,7 @@ class TestHotelExtended:
             number_of_reviews=20,
             review_points=ReviewPoints(numerator=8.5, denominator=10.0),
             address="123 Main St.",
-            classification="4 stars",
+            classification=4,
             room_categories=[room1, room2],
             alternative_hotels=[hotel_minified],
         )
