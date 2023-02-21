@@ -18,7 +18,6 @@ from booking_scraper.model import (
 from booking_scraper.globals import BASE_LINK
 import re
 
-
 class ScraperHelper:
     @staticmethod
     def extract_number_from_text(text: str) -> int:
@@ -287,4 +286,7 @@ if __name__ == "__main__":
         room_categories=bs.get_room_categories(),
         alternative_hotels=bs.get_alternative_hotels(),
     )
-    print(hotel_extended.classification)
+    #print(hotel_extended.classification)
+    hotel_extended_json = json.dumps(
+        hotel_extended.dict(), cls=PydanticJSONEncoder, indent=4
+    )

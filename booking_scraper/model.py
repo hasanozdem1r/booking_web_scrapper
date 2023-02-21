@@ -67,7 +67,7 @@ class HotelMinified(Hotel):
 
 class HotelExtended(Hotel):
     address: str
-    classification: str
+    classification: int
     room_categories: List[HotelRoom]
     alternative_hotels: List[HotelMinified]
 
