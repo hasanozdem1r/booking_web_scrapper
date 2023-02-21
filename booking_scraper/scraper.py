@@ -201,8 +201,8 @@ class BookingScraper(ScraperHelper):
             room_categories: List[HotelRoom] = []
             # categories section to get each category metadata
             for category in categories:
-                room_capacity = category.find("td", {"class": "occ_no_dates"}).find_all("i")
-                room_capacity = self.get_room_capacity(capacity=room_capacity)
+                capacity = category.find("td", {"class": "occ_no_dates"}).find_all("i")
+                room_capacity = self.get_room_capacity(capacity=capacity)
                 room_type = str(category.find("td", {"class": "ftd"}).text).strip()
                 room_categories.append(
                     HotelRoom(
