@@ -6,7 +6,7 @@ from booking_scraper.model import HotelMinified
 from booking_scraper.exception import (
     CssSelectorError,
     XpathSelectorError,
-    InvalidRoomTypeError,
+    InvalidRoomCapacityError,
 )
 from booking_scraper.model import HotelRoom, HotelMinified, HotelExtended, RoomCapacity
 from booking_scraper.globals import BASE_LINK
@@ -17,6 +17,12 @@ from lxml import etree
 class ScraperHelper:
     @staticmethod
     def extract_number_from_text(text: str) -> int:
+        """
+        Extract digit from text with regular expressions
+        :param text: <str> input text
+        :raises ValueError: if not find any or finds more than 2 raise ValueError
+        :return: <int> number which is found
+        """
         numbers = re.findall(r"\d+", text)
         if len(numbers) == 1:
             # number is found
@@ -50,7 +56,7 @@ class ScraperHelper:
                 number_of_adult=number_of_adult, number_of_children=number_of_children
             )
         else:
-            raise InvalidRoomTypeError()
+            raise InvalidRoomCapacityError()
 
 
 class BookingScraper(ScraperHelper):
