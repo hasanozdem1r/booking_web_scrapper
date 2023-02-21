@@ -36,6 +36,28 @@ class ScraperHelper:
                 message=f"Following XPATH:{element_xpath} is not existed in current stream"
             ) from error
 
+    # TODO: refactor and add docstr
+    @staticmethod
+    def get_number_of_people_from_text(capacity: List[str]) -> Dict[str, int]:
+        if len(capacity) == 1:
+            number_of_adult = ScraperHelper.extract_number_from_text(
+                capacity[0].get("title")
+            )
+            return {"number_of_adult": number_of_adult, "number_of_child": 0}
+        elif len(capacity) == 2:
+            number_of_adult = ScraperHelper.extract_number_from_text(
+                capacity[0].get("title")
+            )
+            number_of_child = ScraperHelper.extract_number_from_text(
+                capacity[1]["class"][1]
+            )
+            return {
+                "number_of_adult": number_of_adult,
+                "number_of_child": number_of_child,
+            }
+        else:
+            raise IndexError("Index is out of range")
+
 
 class BookingScraper(ScraperHelper):
     def __init__(self, base_link: str) -> None:
@@ -109,7 +131,17 @@ class BookingScraper(ScraperHelper):
         return description
 
     def get_room_categories(self):
-        pass
+        categories = (
+            self.html_soup.find("table", {"id": "maxotel_rooms"})
+            .find("tbody")
+            .find_all("tr")
+        )
+
+        for category in categories:
+            room_capacity = category.find("td", {"class": "occ_no_dates"}).find_all("i")
+            room_type = str(category.find("td", {"class": "ftd"}).text).strip()
+            print(self.get_number_of_people_from_text(capacity=room_capacity))
+            # print(len(room_capacity))
 
     def get_alternative_hotels(self) -> List[HotelMinified]:
         alternatives: List[HotelMinified] = []
@@ -167,6 +199,7 @@ class BookingScraper(ScraperHelper):
 
 if __name__ == "__main__":
     bs = BookingScraper(base_link=BASE_LINK)
+    bs.get_room_categories()
 
     # pass data / objects to HotelExtended class
     hotel_extended = HotelExtended(
@@ -183,4 +216,4 @@ if __name__ == "__main__":
         ),
         alternative_hotels=bs.get_alternative_hotels(),
     )
-    print(hotel_extended.classification)
+    # print(hotel_extended.classification)
