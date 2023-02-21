@@ -3,6 +3,7 @@ Pydantic Classes for metadata of hotels, it allows you validate and easily seria
 @hasanozdem1r 02-18-2023
 """
 from pydantic import BaseModel, validator, schema_json_of, AnyHttpUrl
+from booking_scraper.exception import ModelValidationError
 from typing import List, Dict
 
 
@@ -16,13 +17,13 @@ class Hotel(BaseModel):
     @validator("number_of_reviews")
     def number_of_reviews_must_be_positive(cls, value):
         if value < 0:
-            raise ValueError("Reviewers cannot be less than 0")
+            raise ModelValidationError("Reviewers cannot be less than 0")
         return value
 
     @validator("review_points")
     def review_points_must_be_between_zero_ten(cls, value):
         if not 0.0 <= value <= 10.0:
-            raise ValueError("Hotel ratings must be between 0.0 and 10.0")
+            raise ModelValidationError("Hotel ratings must be between 0.0 and 10.0")
         return value
 
 
@@ -33,7 +34,7 @@ class HotelRoom(BaseModel):
     @validator("room_capacity")
     def room_capacity_must_be_positive(cls, value):
         if value["adult"] < 0 or value["children"] < 0:
-            raise ValueError("Room capacity cannot be less than 0")
+            raise ModelValidationError("Room capacity cannot be less than 0")
         return value
 
 
@@ -44,7 +45,7 @@ class HotelMinified(Hotel):
     @validator("number_of_visitors")
     def number_of_visitors_must_be_positive(cls, value):
         if value < 0:
-            raise ValueError("Visitors cannot be less than 0")
+            raise ModelValidationError("Visitors cannot be less than 0")
         return value
 
 
