@@ -30,3 +30,13 @@ class ModelValidationError(Exception):
     def __init__(self, validation_error: ValidationError):
         self.validation_error = validation_error
         super().__init__(str(self.validation_error))
+
+
+class InvalidRoomTypeError(ValueError):
+    """ 
+    First index to identify number of adult people, Second index to identify number of children
+    Exception raised if a given list index has more than 2 items.
+    """
+
+    def __init__(self, message: str = "Hotel room can have maximum two types of different guest, adult and children") -> None:
+        super().__init__(message)
