@@ -14,6 +14,7 @@ yapf = "^0.32.0"
 setuptools = "^67.3.2"
 lxml = "^4.9.2"
 black = "^23.1.0"
+pytest-mock = "^3.10.0"
 
 [tool.poetry.dev-dependencies]
 
