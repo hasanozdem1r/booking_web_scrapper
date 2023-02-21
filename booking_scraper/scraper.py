@@ -3,8 +3,12 @@ import requests
 from typing import Dict, List
 from requests.exceptions import HTTPError
 from booking_scraper.model import HotelMinified
-from booking_scraper.exception import CssSelectorError, XpathSelectorError
-from booking_scraper.model import HotelRoom, HotelMinified, HotelExtended
+from booking_scraper.exception import (
+    CssSelectorError,
+    XpathSelectorError,
+    InvalidRoomTypeError,
+)
+from booking_scraper.model import HotelRoom, HotelMinified, HotelExtended, RoomCapacity
 from booking_scraper.globals import BASE_LINK
 import re
 from lxml import etree
@@ -36,27 +40,33 @@ class ScraperHelper:
                 message=f"Following XPATH:{element_xpath} is not existed in current stream"
             ) from error
 
-    # TODO: refactor and add docstr
     @staticmethod
-    def get_number_of_people_from_text(capacity: List[str]) -> Dict[str, int]:
+    def get_room_capacity(capacity: List[str]) -> RoomCapacity:
+        """
+        Parse results based on length of list
+        If len equal 1 this room only has information about number of adults
+        If len equal 2 this room has information about number of adults and children
+        :param capacity: <List[str]>
+        :raises IndexError: hotel room can contain max 2 type of customer if more raise
+        :return: <RoomCapacity> number of adult and children
+        """
         if len(capacity) == 1:
             number_of_adult = ScraperHelper.extract_number_from_text(
                 capacity[0].get("title")
             )
-            return {"adult": number_of_adult, "children": 0}
+            return RoomCapacity(number_of_adult=number_of_adult, number_of_children=0)
         elif len(capacity) == 2:
             number_of_adult = ScraperHelper.extract_number_from_text(
                 capacity[0].get("title")
             )
-            number_of_child = ScraperHelper.extract_number_from_text(
+            number_of_children = ScraperHelper.extract_number_from_text(
                 capacity[1]["class"][1]
             )
-            return {
-                "adult": number_of_adult,
-                "children": number_of_child,
-            }
+            return RoomCapacity(
+                number_of_adult=number_of_adult, number_of_children=number_of_children
+            )
         else:
-            raise IndexError("Index is out of range")
+            raise InvalidRoomTypeError()
 
 
 class BookingScraper(ScraperHelper):
@@ -140,7 +150,7 @@ class BookingScraper(ScraperHelper):
         # categories section to get each category metadata
         for category in categories:
             room_capacity = category.find("td", {"class": "occ_no_dates"}).find_all("i")
-            room_capacity = self.get_number_of_people_from_text(capacity=room_capacity)
+            room_capacity = self.get_room_capacity(capacity=room_capacity)
             room_type = str(category.find("td", {"class": "ftd"}).text).strip()
             room_categories.append(
                 HotelRoom(
