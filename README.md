@@ -76,3 +76,20 @@ Set PYTHONPATH otherwise you might receive booking_scraper module is not found e
 ```bash
   pytest
 ```
+
+## CI/CD pipeline
+A CI/CD pipeline is a series of task steps that must be performed in order to deliver a new version of software properly.
+I've used for code hosting platform GitHub and for CI/CD GitHub Actions.
+GitHub Actions allow users automate everything within the GitHub flow.
+
+**What is our pipeline responsibility ?**
+1. Install Python & Poetry
+2. Install project dependencies (if install fail task fails)
+3. Cache project dependencies to speed up workflow
+4. Code quality check for black formatter (task fail if you did not format with black)
+5. Running unittest with Pytest Framework
+
+**What is hardware specification of GitHub Runner?**
+* 2-core CPU (x86_64)
+* 7 GB of RAM
+* 14 GB of SSD space
