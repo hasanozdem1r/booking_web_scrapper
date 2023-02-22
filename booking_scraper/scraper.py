@@ -227,19 +227,3 @@ class BookingScraper(ScraperHelper):
                 )
         else:
             raise InvalidCssSelectorError()
-
-
-if __name__ == "__main__":
-    bs = BookingScraper(base_link=BASE_LINK)
-    # pass data / objects to HotelExtended class
-    hotel_extended = HotelExtended(
-        hotel_name=bs.get_hotel_name(),
-        description=bs.get_description(),
-        number_of_reviews=bs.get_number_of_reviews(),
-        review_points=bs.get_review_points(),
-        address=bs.get_address(),
-        classification=bs.get_classification(),  # re-check
-        room_categories=bs.get_room_categories(),
-        alternative_hotels=bs.get_alternative_hotels(),
-    )
-    print(hotel_extended)
