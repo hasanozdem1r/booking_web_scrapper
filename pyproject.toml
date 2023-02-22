@@ -16,6 +16,7 @@ lxml = "^4.9.2"
 black = "^23.1.0"
 pytest-mock = "^3.10.0"
 memray = "^1.6.0"
+typer = {extras = ["all"], version = "^0.7.0"}
 
 [tool.poetry.dev-dependencies]
 
