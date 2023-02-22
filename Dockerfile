@@ -13,7 +13,7 @@ WORKDIR /ufynd
 
 FROM python AS project_dependencies
 # Install Poetry 
-RUN pip install "poetry==$POETRY_VERSION" 
+RUN pip3 install "poetry==$POETRY_VERSION" 
 
 # Copy poetry.lock and pyproject.toml
 COPY poetry.lock pyproject.toml /ufynd/
@@ -26,4 +26,4 @@ FROM project_dependencies AS booking_scraper
 COPY . /ufynd/
 
 # Start Server
-CMD ["sh", "-c", "poetry run python -m http.server &" ]
+#CMD ["poetry", "run", "python", "entrypoint.py" ]
