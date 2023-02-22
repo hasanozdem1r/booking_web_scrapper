@@ -1,6 +1,5 @@
 from booking_scraper.scraper import BookingScraper
 from booking_scraper.model import HotelExtended
-from booking_scraper.globals import BASE_LINK
 from booking_scraper.serializer import PydanticJSONEncoder
 import json
 import typer
@@ -14,20 +13,18 @@ HTML_FILE_PATH = (
 
 
 def init_scraper(
-    base_link: str = typer.Option(
-        default=BASE_LINK, help="Hotel link to scrape from internet"
-    ),
+    url: str = typer.Option(default=None, help="Hotel link to scrape from internet"),
     local_file_path: str = typer.Option(
-        default=None, help="File path to scrape from local HTML file"
+        default=HTML_FILE_PATH, help="File path to scrape from local HTML file"
     ),
 ):
     """
     Create an instance from BookingScraper class and scrape all hotel required hotel metadata
-    :param base_link: _description_, defaults to typer.Option( default=BASE_LINK, help="Hotel link to scrape from internet" )
+    :param url: _description_, defaults to typer.Option( default=BASE_LINK, help="Hotel link to scrape from internet" )
     :param local_file_path: _description_, defaults to typer.Option( default=None, help="File path to scrape from local HTML file" )
     """
     booking_scraper = BookingScraper(
-        base_link=base_link,
+        url=url,
         local_file_path=local_file_path,
     )
     # mapping data with HotelExtended class
