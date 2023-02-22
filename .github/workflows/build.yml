@@ -25,7 +25,7 @@ jobs:
 
       - id: prepare_environment
         name: set PYTHONPATH
-        run: export PYTHONPATH="$PWD"
+        run: export PYTHONPATH="$PWD" >> $GITHUB_ENV
 
       - id: setup_poetry
         name: Setup Poetry
