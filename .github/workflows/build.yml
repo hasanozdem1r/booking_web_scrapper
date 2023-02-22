@@ -36,6 +36,15 @@ jobs:
           virtualenvs-in-project: true
           virtualenvs-path: ~/virtualenvs
           installer-parallel: true
+        
+      - id: cache_poetry
+        name: Cache project dependencies
+        uses: actions/cache@v1
+        with:
+          path: ~/.virtualenvs
+          key: poetry-${{ hashFiles('**/poetry.lock') }}
+          restore-keys: |
+            poetry-${{ hashFiles('**/poetry.lock') }}
 
       - id: code_quality
         name: Code Qaulity Check
