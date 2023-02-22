@@ -128,3 +128,30 @@ GitHub Actions allow users automate everything within the GitHub flow.
 2. Running boooking_scraper running on Docker
 
 [![booking_scraper on local machine](https://img.youtube.com/vi/h7fPiqMBxqA/0.jpg)](https://youtu.be/h7fPiqMBxqA)
+
+## Questions & Answers
+
+1. Why Dockerfile has more than one FROM statement ?
+
+The multi-stage build strategy in a Dockerfile is a technique used to create smaller, more efficient Docker images. The strategy involves creating multiple stages in the Dockerfile, each with a specific purpose, and then copying the necessary artifacts from one stage to the next.
+  * Smaller image size
+  * Faster build times
+  * Simplified maintenance
+
+2. Can't we use python string methods instead of regex to find out number in given text?
+
+    Both Python string methods and regex have their own advantages and disadvantages, but in my opinion, there are three key factors that should be considered: performance, accuracy, and readability. These factors are important to me because they affect how well the code performs, how precise the results are, and how easy the code is to understand and maintain.
+
+3. Why did I used Pytest Framework instead of unittest ?
+
+  * Pytest offers a simpler syntax for writing tests
+  * Pytest offers many features that make testing easier and more convenient, such as automatic test discovery and fixtures
+  * Pytest offers more detailed and informative test reporting
+
+4. Why did I used Pydantic 
+
+    I used Pydantic because it makes data validation easy! With Pydantic, I can define my data models for Hotel metadata using Python classes and add validation rules, such as type constraints and regular expressions, into the model. Its built-in JSON serialization and deserialization make it easy to convert my Python objects to and from JSON
+
+5. Why did I used Typer ?
+
+    Using Typer in my project has been incredibly helpful for creating command-line interfaces quickly and easily. Its critical features like parameter type checking and automatic help message generation have saved me a lot of time and made my code much more robust. 
