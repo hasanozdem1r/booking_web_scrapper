@@ -11,6 +11,10 @@ from booking_scraper.model import (
 
 
 class TestHotel:
+    """
+    Test suite for the TestHotel.
+    """
+
     def test_number_of_reviews_must_be_positive(self):
         with pytest.raises(ModelValidationError):
             Hotel(
@@ -43,6 +47,10 @@ class TestHotel:
 
 
 class TestHotelRoom:
+    """
+    Test suite for the TestHotelRoom.
+    """
+
     def test_room_capacity_must_be_positive(self):
         with pytest.raises(ModelValidationError):
             HotelRoom(
@@ -91,6 +99,10 @@ class TestHotelMinified:
 
 
 class TestHotelExtended:
+    """
+    Test suite for the TestHotelExtended.
+    """
+
     def test_can_create_hotel_extended_with_valid_data(self):
         room1 = HotelRoom(
             room_capacity=RoomCapacity(number_of_adult=2, number_of_children=1),

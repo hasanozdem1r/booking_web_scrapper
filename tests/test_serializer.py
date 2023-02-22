@@ -28,7 +28,7 @@ hotel_extended = HotelExtended(
     number_of_reviews=20,
     review_points=ReviewPoints(numerator=7.5, denominator=10.0),
     address="Hotel Address",
-    classification="4-star",
+    classification=4,
     room_categories=[
         HotelRoom(
             room_capacity=RoomCapacity(number_of_adult=2, number_of_children=0),
