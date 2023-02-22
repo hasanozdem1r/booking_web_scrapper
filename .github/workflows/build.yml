@@ -49,8 +49,9 @@ jobs:
         if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
 
       - id: code_quality
-        name: Code Qaulity Check
-        run: poetry run black . --check
+        uses: rickstaa/action-black@v1
+        with:
+          black_args: ". --check"
 
       - id: run_tests
         name: Running all tests
