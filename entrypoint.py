@@ -42,6 +42,8 @@ def init_scraper(
         hotel_extended.dict(), cls=PydanticJSONEncoder, indent=4
     )
     pretty_print(hotel_extended_json)
+    # comment print and use return
+    # return hotel_extended_json
 
 
 if __name__ == "__main__":

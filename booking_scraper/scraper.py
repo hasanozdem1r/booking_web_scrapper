@@ -12,7 +12,6 @@ from booking_scraper.model import (
     HotelExtended,
     ReviewPoints,
 )
-from booking_scraper.globals import BASE_LINK
 from booking_scraper.helper import ScraperHelper
 from . import LOG
 
@@ -21,19 +20,10 @@ from . import LOG
 class BookingScraper(ScraperHelper):
     def __init__(
         self,
-        url: str = BASE_LINK,
+        url: str = None,
         local_file_path: Optional[str] = None,
     ) -> None:
-        if local_file_path != None:
-            try:
-                with open(local_file_path) as f:
-                    html = f.read()
-                    html_soup = BeautifulSoup(html, "html.parser")
-                    self.html_body = html_soup.find("body")
-            except FileNotFoundError as file_not_found_err:
-                LOG.critical(message=f"Given file is not existed {local_file_path}")
-                raise HTTPError from file_not_found_err
-        else:
+        if url != None:
             try:
                 # use fake User-Agent to deal 403 Forbidden
                 headers: Dict[str, str] = {
@@ -50,6 +40,15 @@ class BookingScraper(ScraperHelper):
             except HTTPError as http_err:
                 LOG.critical(message=f"HTTP error occurred: {http_err}")
                 raise HTTPError from http_err
+        else:
+            try:
+                with open(local_file_path) as f:
+                    html = f.read()
+                    html_soup = BeautifulSoup(html, "html.parser")
+                    self.html_body = html_soup.find("body")
+            except FileNotFoundError as file_not_found_err:
+                LOG.critical(message=f"Given file is not existed {local_file_path}")
+                raise HTTPError from file_not_found_err
 
     def get_hotel_name(self) -> str:
         """
