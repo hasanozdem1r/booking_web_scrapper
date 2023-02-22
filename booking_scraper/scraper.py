@@ -16,7 +16,6 @@ from booking_scraper.helper import ScraperHelper
 from . import LOG
 
 
-# TODO consider replacing find with select_one
 class BookingScraper(ScraperHelper):
     def __init__(
         self,

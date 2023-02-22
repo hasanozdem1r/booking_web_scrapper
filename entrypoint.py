@@ -41,6 +41,7 @@ def init_scraper(
     hotel_extended_json = json.dumps(
         hotel_extended.dict(), cls=PydanticJSONEncoder, indent=4
     )
+    # rich print shows with better formatting
     pretty_print(hotel_extended_json)
     # comment print and use return
     # return hotel_extended_json

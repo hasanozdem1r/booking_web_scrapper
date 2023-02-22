@@ -25,5 +25,3 @@ FROM project_dependencies AS booking_scraper
 # Copy project files
 COPY . /ufynd/
 
-# Start Server
-#CMD ["poetry", "run", "python", "entrypoint.py" ]
