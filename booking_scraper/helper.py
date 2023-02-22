@@ -1,6 +1,7 @@
 from typing import List
 from booking_scraper.model import RoomCapacity
 from booking_scraper.exception import InvalidRoomCapacityError
+from . import LOG
 import re
 
 

@@ -4,9 +4,12 @@ from rich.logging import RichHandler
 logging.basicConfig(
     level="NOTSET",
     format="%(asctime)s %(levelname)s: %(message)s",
-    datefmt="%d/%b/%Y:%H:%M:%S %z", # format of a standard HTTP
-    handlers=[RichHandler(rich_tracebacks=True)], # RichHandler format and colorize text written by Python’s logging
+    datefmt="%d/%b/%Y:%H:%M:%S %z",  # format of a standard HTTP
+    handlers=[
+        RichHandler(rich_tracebacks=True)
+    ],  # RichHandler format and colorize text written by Python’s logging
 )
+
 
 class ScraperLogging(object):
     def __init__(
@@ -39,20 +42,16 @@ class ScraperLogging(object):
         self.logger = logging.getLogger(self.name)
 
     def info(self, message: str, traceback: bool = False):
-        if traceback is not None:
-            self.traceback = traceback
-            self.__setup_loger()
+        self.traceback = traceback
+        self.__setup_loger()
         return self.logger.info(message)
 
-    def warning(self, message: str, traceback: bool = False):
-        if traceback is not None:
-            self.traceback = traceback
-            self.__setup_loger()
+    def error(self, message: str, traceback: bool = True):
+        self.traceback = traceback
+        self.__setup_loger()
         return self.logger.warning(message)
 
-    def critical(self, message: str, traceback: bool = False):
-        if traceback is not None:
-            self.traceback = traceback
-            self.__setup_loger()
+    def critical(self, message: str, traceback: bool = True):
+        self.traceback = traceback
+        self.__setup_loger()
         return self.logger.critical(message)
-
