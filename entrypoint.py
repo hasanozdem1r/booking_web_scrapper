@@ -5,20 +5,41 @@ from booking_scraper.serializer import PydanticJSONEncoder
 import json
 import typer
 from rich import print as pretty_print
+import os
+
+PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
+HTML_FILE_PATH = (
+    f"{PROJECT_ROOT}/data/Kempinski Hotel Bristol Berlin, Germany - Booking.com.html"
+)
 
 
-def main():
-    bs = BookingScraper(base_link=BASE_LINK)
-    # pass data / objects to HotelExtended class
+def init_scraper(
+    base_link: str = typer.Option(
+        default=BASE_LINK, help="Hotel link to scrape from internet"
+    ),
+    local_file_path: str = typer.Option(
+        default=None, help="File path to scrape from local HTML file"
+    ),
+):
+    """
+    Create an instance from BookingScraper class and scrape all hotel required hotel metadata
+    :param base_link: _description_, defaults to typer.Option( default=BASE_LINK, help="Hotel link to scrape from internet" )
+    :param local_file_path: _description_, defaults to typer.Option( default=None, help="File path to scrape from local HTML file" )
+    """
+    booking_scraper = BookingScraper(
+        base_link=base_link,
+        local_file_path=local_file_path,
+    )
+    # mapping data with HotelExtended class
     hotel_extended = HotelExtended(
-        hotel_name=bs.get_hotel_name(),
-        description=bs.get_description(),
-        number_of_reviews=bs.get_number_of_reviews(),
-        review_points=bs.get_review_points(),
-        address=bs.get_address(),
-        classification=bs.get_classification(),  # re-check
-        room_categories=bs.get_room_categories(),
-        alternative_hotels=bs.get_alternative_hotels(),
+        hotel_name=booking_scraper.get_hotel_name(),
+        description=booking_scraper.get_description(),
+        number_of_reviews=booking_scraper.get_number_of_reviews(),
+        review_points=booking_scraper.get_review_points(),
+        address=booking_scraper.get_address(),
+        classification=booking_scraper.get_classification(),  # re-check
+        room_categories=booking_scraper.get_room_categories(),
+        alternative_hotels=booking_scraper.get_alternative_hotels(),
     )
     hotel_extended_json = json.dumps(
         hotel_extended.dict(), cls=PydanticJSONEncoder, indent=4
@@ -27,4 +48,4 @@ def main():
 
 
 if __name__ == "__main__":
-    typer.run(main)
+    typer.run(init_scraper)
