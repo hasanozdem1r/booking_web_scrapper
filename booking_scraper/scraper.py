@@ -1,6 +1,6 @@
 from bs4 import BeautifulSoup
 import requests
-from typing import Dict, List
+from typing import Dict, List, Optional
 from requests.exceptions import HTTPError
 from booking_scraper.model import HotelMinified
 from booking_scraper.exception import (
@@ -19,23 +19,37 @@ from . import LOG
 
 # TODO consider replacing find with select_one
 class BookingScraper(ScraperHelper):
-    def __init__(self, base_link: str) -> None:
-        try:
-            # use fake User-Agent to deal 403 Forbidden
-            headers: Dict[str, str] = {
-                "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 \
-            (KHTML, like Gecko) Chrome/44.0.2403.157 Safari/537.36",
-                "Accept-Language": "en-US, en;q=0.5",
-            }
-            response = requests.get(base_link, headers=headers, timeout=30)
-            # If the response was successful, no Exception will be raised
-            response.raise_for_status()
-            content = response.content
-            html_soup = BeautifulSoup(content, "html.parser")
-            self.html_body = html_soup.find("body")
-        except HTTPError as http_err:
-            LOG.critical(message=f"HTTP error occurred: {http_err}")
-            raise HTTPError from http_err
+    def __init__(
+        self,
+        url: str = BASE_LINK,
+        local_file_path: Optional[str] = None,
+    ) -> None:
+        if local_file_path != None:
+            try:
+                with open(local_file_path) as f:
+                    html = f.read()
+                    html_soup = BeautifulSoup(html, "html.parser")
+                    self.html_body = html_soup.find("body")
+            except FileNotFoundError as file_not_found_err:
+                LOG.critical(message=f"Given file is not existed {local_file_path}")
+                raise HTTPError from file_not_found_err
+        else:
+            try:
+                # use fake User-Agent to deal 403 Forbidden
+                headers: Dict[str, str] = {
+                    "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 \
+                (KHTML, like Gecko) Chrome/44.0.2403.157 Safari/537.36",
+                    "Accept-Language": "en-US, en;q=0.5",
+                }
+                response = requests.get(url, headers=headers, timeout=30)
+                # If the response was successful, no Exception will be raised
+                response.raise_for_status()
+                content = response.content
+                html_soup = BeautifulSoup(content, "html.parser")
+                self.html_body = html_soup.find("body")
+            except HTTPError as http_err:
+                LOG.critical(message=f"HTTP error occurred: {http_err}")
+                raise HTTPError from http_err
 
     def get_hotel_name(self) -> str:
         """

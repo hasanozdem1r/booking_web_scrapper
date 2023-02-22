@@ -1,14 +1,18 @@
 import pytest
 from requests.exceptions import HTTPError
 from booking_scraper.scraper import BookingScraper
-from booking_scraper.model import RoomCapacity, ReviewPoints
-from booking_scraper.exception import InvalidRoomCapacityError, InvalidCssSelectorError
+import os
 from booking_scraper.globals import BASE_LINK
+
+CWD = os.path.dirname(os.path.abspath(__file__))
+HTML_FILE_PATH = (
+    f"{CWD}/../data/Kempinski Hotel Bristol Berlin, Germany - Booking.com.html"
+)
 
 
 @pytest.fixture()
 def booking_scraper():
-    return BookingScraper(base_link=BASE_LINK)
+    return BookingScraper(local_file_path=HTML_FILE_PATH)
 
 
 def test_get_hotel_name(booking_scraper):
